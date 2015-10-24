@@ -41,7 +41,7 @@ def validate(argv):
     sys.exit(1)
 
 
-def make_tree(depth, current = 1, tree = None):
+def make_tree(depth, current_level = 1, tree = None):
   """ Given a tree depth, recursively create an actual
   tree that follows the problem requirements. """
   # make the root if none is found
@@ -50,25 +50,28 @@ def make_tree(depth, current = 1, tree = None):
 
   # if we haven't hit the limit, recurse
   # through the children until we do
-  if current != depth:
+  if current_level != depth:
     tree.make_children()
-    make_tree(depth, current + 1, tree.left)
-    make_tree(depth, current + 1, tree.right)
+    make_tree(depth, current_level + 1, tree.left)
+    make_tree(depth, current_level + 1, tree.right)
 
   return tree
 
 
 def display_tree(tree, depth):
   """ Given the tree structure, display it with proper formatting. """
-  for counter, level in enumerate(range(depth - 1, -1, -1)):
+  for counter in range(depth):
+    # calculate the proper width values for each segment based on the level
     occurrences = 2 ** counter
-    starting_spaces = 2 ** level if level > 0 else 0
+    starting_spaces = 2 ** (depth - counter - 1) if counter < depth - 1 else 0
     underscores = max(0, starting_spaces - 2)
     node_spaces = starting_spaces * 2 + 3
     out_slash_spaces = starting_spaces * 2 + 1
     in_slash_spaces = underscores * 2 + 1
+    # display the current line of values, with spaces and underscores repeated for formatting
+    # also include the slashes unless we're at the bottom-most level
     print(" " * starting_spaces + "{0}*{0}{1}".format("_" * underscores, " " * node_spaces) * occurrences)
-    if level > 0:
+    if counter < depth - 1:
       print(" " * (starting_spaces - 1) + "/{}\\{}".format(" " * in_slash_spaces, " " * out_slash_spaces) * occurrences)
 
 
