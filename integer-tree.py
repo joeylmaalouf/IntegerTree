@@ -107,17 +107,17 @@ def display_tree(tree, depth):
     # calculate the proper width values for each segment based on the level
     starting_spaces = 2 ** (depth - counter - 1) if counter < depth - 1 else 0
     underscores = max(0, starting_spaces - 2)
-    node_spaces = starting_spaces * 2 + 3
+    node_spaces = starting_spaces * 2 + (3 if counter < depth - 2 else 1)
     out_slash_spaces = starting_spaces * 2 + 1
     in_slash_spaces = underscores * 2 + 1
     # display the current level of values, with spaces and underscores repeated for formatting
     # also include the slashes unless we're at the bottom-most level
-    nodestring = " " * starting_spaces
+    nodestring = " " * (starting_spaces + (1 if counter < depth - 2 else 0))
     for value in level_values:
-      nodestring += "{0}{2}{0}{1}".format("_" * underscores, " " * node_spaces, value)
+      nodestring += "{0}{2:03d}{0}{1}".format("_" * (underscores - 1), " " * node_spaces, value)
     print(nodestring)
     if counter < depth - 1:
-      print(" " * (starting_spaces - 1) + "/{}\\{}".format(" " * in_slash_spaces, " " * out_slash_spaces) * len(level_values))
+      print(" " * starting_spaces + "/{}\\{}".format(" " * in_slash_spaces, " " * out_slash_spaces) * len(level_values))
 
 
 if __name__ == "__main__":
