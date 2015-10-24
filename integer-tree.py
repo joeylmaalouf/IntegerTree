@@ -41,19 +41,26 @@ def validate(argv):
     sys.exit(1)
 
 
-def make_tree(depth, current = 0):
-  """ Given a tree depth, create an actual tree
-  that follows the problem requirements. """
-  if current == depth:
-    n = Node(1).make_children() # example usage
-    return n
-  else:
-    return make_tree(depth, current + 1)
+def make_tree(depth, current = 1, tree = None):
+  """ Given a tree depth, recursively create an actual
+  tree that follows the problem requirements. """
+  # make the root if none is found
+  if not tree:
+    tree = Node(1)
+
+  # if we haven't hit the limit, recurse
+  # through the children until we do
+  if current != depth:
+    tree.make_children()
+    make_tree(depth, current + 1, tree.left)
+    make_tree(depth, current + 1, tree.right)
+
+  return tree
 
 
 def display_tree(tree):
   """ Given the tree structure, display it with proper formatting. """
-  print(" {}\n{} {}".format(tree, tree.left, tree.right))
+  print(tree)
 
 
 if __name__ == "__main__":
