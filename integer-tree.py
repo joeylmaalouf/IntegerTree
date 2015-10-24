@@ -39,14 +39,14 @@ class Node(object):
 
   def nodes_at_depth(self, depth, current_level = 1):
     """ Recurse down the tree until we reach the desired depth,
-    yielding all of the node values at the specified level. """
-    if current_level == depth:
-      yield self.value
+    yielding all of the nodes at the specified level. """
+    if current_level >= depth:
+      yield self
     if self.left and self.right and current_level < depth:
-      for nodeval in self.left.nodes_at_depth(depth, current_level + 1):
-        yield nodeval
-      for nodeval in self.right.nodes_at_depth(depth, current_level + 1):
-        yield nodeval
+      for node in self.left.nodes_at_depth(depth, current_level + 1):
+        yield node
+      for node in self.right.nodes_at_depth(depth, current_level + 1):
+        yield node
 
 
 def validate(argv):
@@ -69,9 +69,9 @@ def validate(argv):
     sys.exit(1)
 
 
-def make_tree(depth, current_level = 1, tree = None):
-  """ Given a tree depth, recursively create an actual
-  tree that follows the problem requirements. """
+def initialize_tree(depth, current_level = 1, tree = None):
+  """ Given a tree depth, recursively create
+  an actual tree of the desired size. """
   # make the root if none is found
   if not tree:
     tree = Node(1)
@@ -79,18 +79,31 @@ def make_tree(depth, current_level = 1, tree = None):
   # if we haven't hit the limit, recurse
   # through the children until we do
   if current_level != depth:
-    tree.make_children()
-    make_tree(depth, current_level + 1, tree.left)
-    make_tree(depth, current_level + 1, tree.right)
-
+    # we can't just create the children here because
+    # their values depend on those of their parents' siblings,
+    # who may or may not yet be created (since this is pre-order)
+    tree.left = Node(None, tree, "left")
+    tree.right = Node(None, tree, "right")
+    initialize_tree(depth, current_level + 1, tree.left)
+    initialize_tree(depth, current_level + 1, tree.right)
   return tree
+
+
+def populate_tree(tree, depth):
+  """ Given our tree structure, iterate through the
+  levels of the tree and make the children as we go. """
+  for d in range(1, depth):
+    # we can create the children here because this is level-order,
+    # so all of the parents and siblings are already created
+    for n in tree.nodes_at_depth(d):
+      n.make_children()
 
 
 def display_tree(tree, depth):
   """ Given the tree structure, display it with proper formatting. """
   for counter in range(depth):
     # get all of the values that will be printed
-    level_values = list(tree.nodes_at_depth(counter + 1))
+    level_values = [n.value for n in tree.nodes_at_depth(counter + 1)]
     # calculate the proper width values for each segment based on the level
     starting_spaces = 2 ** (depth - counter - 1) if counter < depth - 1 else 0
     underscores = max(0, starting_spaces - 2)
@@ -109,5 +122,6 @@ def display_tree(tree, depth):
 
 if __name__ == "__main__":
   depth = validate(sys.argv)
-  tree = make_tree(depth)
+  tree = initialize_tree(depth)
+  populate_tree(tree, depth)
   display_tree(tree, depth)
