@@ -60,10 +60,16 @@ def make_tree(depth, current = 1, tree = None):
 
 def display_tree(tree, depth):
   """ Given the tree structure, display it with proper formatting. """
-  for level in range(depth - 1, -1, -1):
-    spaces = 2 ** level
-    underscores = max(0, spaces - 2)
-    print("{}{}".format(" " * spaces, "_" * underscores))
+  for counter, level in enumerate(range(depth - 1, -1, -1)):
+    occurrences = 2 ** counter
+    starting_spaces = 2 ** level if level > 0 else 0
+    underscores = max(0, starting_spaces - 2)
+    node_spaces = starting_spaces * 2 + 3
+    out_slash_spaces = starting_spaces * 2 + 1
+    in_slash_spaces = underscores * 2 + 1
+    print(" " * starting_spaces + "{0}*{0}{1}".format("_" * underscores, " " * node_spaces) * occurrences)
+    if level > 0:
+      print(" " * (starting_spaces - 1) + "/{}\\{}".format(" " * in_slash_spaces, " " * out_slash_spaces) * occurrences)
 
 
 if __name__ == "__main__":
