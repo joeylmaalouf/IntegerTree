@@ -24,6 +24,17 @@ class Node(object):
     self.right = Node(rval, self, "right")
     return self
 
+  def nodes_at_depth(self, depth, current_level = 1):
+    """ Recurse down the tree until we reach the desired depth,
+    yielding all of the nodes at the specified level. """
+    if current_level == depth:
+      yield self.value
+    if self.left and self.right and current_level < depth:
+      for node in self.left.nodes_at_depth(depth, current_level + 1):
+        yield node
+      for node in self.right.nodes_at_depth(depth, current_level + 1):
+        yield node
+
 
 def validate(argv):
   """ Given the argument values, make sure that we have
@@ -78,4 +89,6 @@ def display_tree(tree, depth):
 if __name__ == "__main__":
   depth = validate(sys.argv)
   tree = make_tree(depth)
+  for i in range(depth):
+    print(list(tree.nodes_at_depth(i + 1)))
   display_tree(tree, depth)
