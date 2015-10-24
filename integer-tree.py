@@ -15,18 +15,31 @@ class Node(object):
     """ String representation of the node. """
     return str(self.value)
 
+  def get_siblings(self):
+    """ Find the siblings to the node, where siblings are defined as adjacent
+    entries on the same level, regardless of sharing a parent node. """
+    siblings = { "left": None, "right": None }
+    parent_siblings = self.parent.get_siblings() if self.parent else { "left": None, "right": None }
+    if self.pos == "left":
+      siblings["right"] = self.parent.right
+      siblings["left"] = parent_siblings["left"].right if self.parent.parent and parent_siblings["left"] else None
+    elif self.pos == "right":
+      siblings["left"] = self.parent.left
+      siblings["right"] = parent_siblings["right"].left if self.parent.parent and parent_siblings["right"] else None
+    return siblings
+
   def make_children(self):
     """ Using the node's position under its parent,
     calculate its left and right child values. """
-    lval = self.value + self.parent.left.value if self.pos == "right" else self.value
-    rval = self.value + self.parent.right.value if self.pos == "left" else self.value
+    siblings = self.get_siblings()
+    lval = (self.value + siblings["left"].value) if siblings["left"] else self.value
+    rval = (self.value + siblings["right"].value) if siblings["right"] else self.value
     self.left = Node(lval, self, "left")
     self.right = Node(rval, self, "right")
-    return self
 
   def nodes_at_depth(self, depth, current_level = 1):
     """ Recurse down the tree until we reach the desired depth,
-    yielding all of the nodes at the specified level. """
+    yielding all of the node values at the specified level. """
     if current_level == depth:
       yield self.value
     if self.left and self.right and current_level < depth:
@@ -87,8 +100,8 @@ def display_tree(tree, depth):
     # display the current level of values, with spaces and underscores repeated for formatting
     # also include the slashes unless we're at the bottom-most level
     nodestring = " " * starting_spaces
-    for val in level_values:
-      nodestring += "{0}{2}{0}{1}".format("_" * underscores, " " * node_spaces, val)
+    for value in level_values:
+      nodestring += "{0}{2}{0}{1}".format("_" * underscores, " " * node_spaces, value)
     print(nodestring)
     if counter < depth - 1:
       print(" " * (starting_spaces - 1) + "/{}\\{}".format(" " * in_slash_spaces, " " * out_slash_spaces) * len(level_values))
