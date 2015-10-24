@@ -58,12 +58,15 @@ def make_tree(depth, current = 1, tree = None):
   return tree
 
 
-def display_tree(tree):
+def display_tree(tree, depth):
   """ Given the tree structure, display it with proper formatting. """
-  print(tree)
+  for level in range(depth - 1, -1, -1):
+    spaces = 2 ** level
+    underscores = max(0, spaces - 2)
+    print("{}{}".format(" " * spaces, "_" * underscores))
 
 
 if __name__ == "__main__":
   depth = validate(sys.argv)
   tree = make_tree(depth)
-  display_tree(tree)
+  display_tree(tree, depth)
