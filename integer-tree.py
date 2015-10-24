@@ -30,10 +30,10 @@ class Node(object):
     if current_level == depth:
       yield self.value
     if self.left and self.right and current_level < depth:
-      for node in self.left.nodes_at_depth(depth, current_level + 1):
-        yield node
-      for node in self.right.nodes_at_depth(depth, current_level + 1):
-        yield node
+      for nodeval in self.left.nodes_at_depth(depth, current_level + 1):
+        yield nodeval
+      for nodeval in self.right.nodes_at_depth(depth, current_level + 1):
+        yield nodeval
 
 
 def validate(argv):
@@ -46,7 +46,11 @@ def validate(argv):
 
   # if the depth isn't a valid int, error out
   try:
-    return int(argv[1])
+    depth = int(argv[1])
+    if depth <= 0:
+      print("Error: Tree depth must be positive.")
+      sys.exit(1)
+    return depth
   except ValueError:
     print("Error: Tree depth must be a valid integer.")
     sys.exit(1)
@@ -72,23 +76,25 @@ def make_tree(depth, current_level = 1, tree = None):
 def display_tree(tree, depth):
   """ Given the tree structure, display it with proper formatting. """
   for counter in range(depth):
+    # get all of the values that will be printed
+    level_values = list(tree.nodes_at_depth(counter + 1))
     # calculate the proper width values for each segment based on the level
-    occurrences = 2 ** counter
     starting_spaces = 2 ** (depth - counter - 1) if counter < depth - 1 else 0
     underscores = max(0, starting_spaces - 2)
     node_spaces = starting_spaces * 2 + 3
     out_slash_spaces = starting_spaces * 2 + 1
     in_slash_spaces = underscores * 2 + 1
-    # display the current line of values, with spaces and underscores repeated for formatting
+    # display the current level of values, with spaces and underscores repeated for formatting
     # also include the slashes unless we're at the bottom-most level
-    print(" " * starting_spaces + "{0}*{0}{1}".format("_" * underscores, " " * node_spaces) * occurrences)
+    nodestring = " " * starting_spaces
+    for val in level_values:
+      nodestring += "{0}{2}{0}{1}".format("_" * underscores, " " * node_spaces, val)
+    print(nodestring)
     if counter < depth - 1:
-      print(" " * (starting_spaces - 1) + "/{}\\{}".format(" " * in_slash_spaces, " " * out_slash_spaces) * occurrences)
+      print(" " * (starting_spaces - 1) + "/{}\\{}".format(" " * in_slash_spaces, " " * out_slash_spaces) * len(level_values))
 
 
 if __name__ == "__main__":
   depth = validate(sys.argv)
   tree = make_tree(depth)
-  for i in range(depth):
-    print(list(tree.nodes_at_depth(i + 1)))
   display_tree(tree, depth)
