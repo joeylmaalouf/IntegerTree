@@ -15,6 +15,15 @@ class Node(object):
     """ String representation of the node. """
     return str(self.value)
 
+  def depth(self):
+    """ Recurse down the tree until we reach a leaf. """
+    depth = 0
+    node = self
+    while node:
+      depth += 1
+      node = node.left
+    return depth
+
   def get_siblings(self):
     """ Find the siblings to the node, where siblings are defined as adjacent
     entries on the same level, regardless of sharing a parent node. """
@@ -82,25 +91,26 @@ def initialize_tree(depth, current_level = 1, tree = None):
     # we can't just create the children here because
     # their values depend on those of their parents' siblings,
     # who may or may not yet be created (since this is pre-order)
-    tree.left = Node(None, tree, "left")
-    tree.right = Node(None, tree, "right")
+    tree.left = Node(1, tree, "left")
+    tree.right = Node(1, tree, "right")
     initialize_tree(depth, current_level + 1, tree.left)
     initialize_tree(depth, current_level + 1, tree.right)
   return tree
 
 
-def populate_tree(tree, depth):
+def populate_tree(tree):
   """ Given our tree structure, iterate through the
   levels of the tree and make the children as we go. """
-  for d in range(1, depth):
+  for d in range(1, tree.depth()):
     # we can create the children here because this is level-order,
     # so all of the parents and siblings are already created
     for n in tree.nodes_at_depth(d):
       n.make_children()
 
 
-def display_tree(tree, depth):
+def display_tree(tree):
   """ Given the tree structure, display it with proper formatting. """
+  depth = tree.depth()
   for counter in range(depth):
     # get all of the values that will be printed
     level_values = [n.value for n in tree.nodes_at_depth(counter + 1)]
@@ -123,5 +133,5 @@ def display_tree(tree, depth):
 if __name__ == "__main__":
   depth = validate(sys.argv)
   tree = initialize_tree(depth)
-  populate_tree(tree, depth)
-  display_tree(tree, depth)
+  populate_tree(tree)
+  display_tree(tree)
