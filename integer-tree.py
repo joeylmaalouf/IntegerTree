@@ -123,15 +123,25 @@ def display_tree(tree):
     # display the current level of values, with spaces and underscores repeated for formatting
     # also include the slashes unless we're at the bottom-most level
     nodestring = " " * (starting_spaces + (1 if counter < depth - 2 else 0))
-    for value in level_values:
-      nodestring += "{0}{2:03d}{0}{1}".format("_" * (underscores - 1), " " * node_spaces, value)
+    for index, value in enumerate(level_values):
+      nodestring += "{0}{1:03d}{0}".format("_" * (underscores - 1), value)
+      if index < len(level_values) - 1:
+        nodestring += " " * node_spaces
     print(nodestring)
     if counter < depth - 1:
-      print(" " * starting_spaces + "/{}\\{}".format(" " * in_slash_spaces, " " * out_slash_spaces) * len(level_values))
+      slashstring = " " * starting_spaces
+      for index in range(len(level_values) - 1):
+        slashstring += "/{}\\{}".format(" " * in_slash_spaces, " " * out_slash_spaces)
+      slashstring += "/{}\\".format(" " * in_slash_spaces)
+      print(slashstring)
 
 
-if __name__ == "__main__":
-  depth = validate(sys.argv)
+def main(argv):
+  depth = validate(argv)
   tree = initialize_tree(depth)
   populate_tree(tree)
   display_tree(tree)
+
+
+if __name__ == "__main__":
+  main(sys.argv)
